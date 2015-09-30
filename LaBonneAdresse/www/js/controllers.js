@@ -13,7 +13,8 @@ angular.module('starter.controllers', [])
 
   $scope.chats = Chats.all();
   $scope.remove = function(chat) {
-    Chats.remove(chat);
+      Chats.remove(chat);
+      navigator.vibration(3000);
   };
 })
 
