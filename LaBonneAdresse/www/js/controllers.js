@@ -1,6 +1,28 @@
 angular.module('starter.controllers', [])
 
-.controller('DashCtrl', function($scope) {})
+.controller('DashCtrl', function ($scope, $cordovaNetwork, $cordovaGeolocation) {
+    
+    $scope.checkConnection = function () {
+        var isConnect = $cordovaNetwork.isOnline();
+        if (isConnect == true) {
+            alert('Vous avez bien une connection à internet');
+        } else {
+            alert("vous n'êtes pas connecté à internet");
+        }
+    }
+    $scope.getMyPosition = function () {
+        var posOptions = { timeout: 10000, enableHighAccuracy: false };
+        $cordovaGeolocation
+          .getCurrentPosition(posOptions)
+          .then(function (position) {
+              var lat = position.coords.latitude
+              var long = position.coords.longitude
+              alert("Vous êtes en :\nLatitude : " + lat + "\nLongitude : " + long);
+          }, function (err) {
+              alert("Une erreur a été rencontré lors de l'acquisition de votre position");
+          });
+    }
+})
 
 .controller('ChatsCtrl', function($scope, Chats) {
   // With the new view caching in Ionic, Controllers are only called
