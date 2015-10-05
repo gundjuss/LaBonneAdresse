@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-.controller('DashCtrl', function ($scope, $cordovaNetwork, $cordovaGeolocation) {
+.controller('DashCtrl', function ($scope, $cordovaNetwork, $cordovaGeolocation, $cordovaDevice) {
     
     $scope.checkConnection = function () {
         var isConnect = $cordovaNetwork.isOnline();
@@ -9,6 +9,22 @@ angular.module('starter.controllers', [])
         } else {
             alert("vous n'êtes pas connecté à internet");
         }
+        document.addEventListener("deviceready", function () {
+
+            var device = $cordovaDevice.getDevice();
+            alert("device : " + device);
+
+            var cordova = $cordovaDevice.getCordova();
+
+            var model = $cordovaDevice.getModel();
+
+            var platform = $cordovaDevice.getPlatform();
+
+            var uuid = $cordovaDevice.getUUID();
+
+            var version = $cordovaDevice.getVersion();
+
+        }, false);
     }
     $scope.getMyPosition = function () {
         var posOptions = { timeout: 10000, enableHighAccuracy: false };
