@@ -1,7 +1,7 @@
 angular.module('starter.controllers', [])
 
 .controller('DashCtrl', function ($scope, $cordovaNetwork, $cordovaGeolocation, $cordovaDevice, $cordovaSocialSharing) {
-
+    console.log("salope");
     $scope.checkConnection = function () {
         var isConnect = $cordovaNetwork.isOnline();
         if (isConnect == true) {
