@@ -105,6 +105,7 @@ function callback(results, status) {
 }
 
 function createMarker(place) {
+    //alert("nom : " + place.name);
     var placeLoc = place.geometry.location;
     var marker = new google.maps.Marker({
         map: map,
