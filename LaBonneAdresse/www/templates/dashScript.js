@@ -1,21 +1,45 @@
-function checkConnection() {
-    var networkState = navigator.connection.type;
+var map;
+var infowindow;
 
-    var states = {};
-    states[Connection.UNKNOWN] = 'Unknown connection';
-    states[Connection.ETHERNET] = 'Ethernet connection';
-    states[Connection.WIFI] = 'WiFi connection';
-    states[Connection.CELL_2G] = 'Cell 2G connection';
-    states[Connection.CELL_3G] = 'Cell 3G connection';
-    states[Connection.CELL_4G] = 'Cell 4G connection';
-    states[Connection.CELL] = 'Cell generic connection';
-    states[Connection.NONE] = 'No network connection';
+function initMap() {
+    var pyrmont = { lat: -33.867, lng: 151.195 };
 
-    alert('Connection type: ' + states[networkState]);
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: pyrmont,
+        zoom: 15
+    });
+
+    infowindow = new google.maps.InfoWindow();
+    alert("before call");
+    var service = new google.maps.places.PlacesService(map);
+    service.nearbySearch({
+        location: pyrmont,
+        radius: 500,
+        types: ['store']
+    }, callback);
 }
 
+function callback(results, status) {
+    alert("status : " + results);
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+            createMarker(results[i]);
+        }
+    } else {
+        alert("error callback");
+    }
+}
 
-function test() {
-    console.log("Clic detecter");
-    checkConnection();
+function createMarker(place) {
+    alert("create a marker");
+    var placeLoc = place.geometry.location;
+    var marker = new google.maps.Marker({
+        map: map,
+        position: place.geometry.location
+    });
+
+    google.maps.event.addListener(marker, 'click', function () {
+        infowindow.setContent(place.name);
+        infowindow.open(map, this);
+    });
 }

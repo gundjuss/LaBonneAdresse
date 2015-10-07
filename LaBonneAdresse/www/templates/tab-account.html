@@ -1,9 +1,15 @@
+
+<script src="dashScript.js"></script>
 <ion-view view-title="Account">
-  <ion-content>
-    <ion-list>
-    <ion-toggle  ng-model="settings.enableFriends">
-        Enable Friends
-    </ion-toggle>
-    </ion-list>
-  </ion-content>
+    <ion-content>
+        <ion-list>
+            <ion-toggle ng-model="settings.enableFriends">
+                Enable Friends
+            </ion-toggle>
+        </ion-list>
+        <button ng-click="testPlace()" class="button">
+            Test partage
+        </button>
+        <div id="map"></div>
+    </ion-content>
 </ion-view>
