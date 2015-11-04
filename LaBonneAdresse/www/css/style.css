@@ -1,7 +1,29 @@
 /* Empty. Add your own CSS if you like */
 #map {
-  height: 100%;
-  width: 100%;
+  margin-top : 2%;
+  height: 50%;
+  width: 90%;
+  margin-top: 2%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#list{
+  margin-top : 2%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#btnSearch{
+  margin-top : 2%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#feedback{
+  margin-top : 2%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .scroll {

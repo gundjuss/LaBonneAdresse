@@ -4,9 +4,9 @@ angular.module('starter.controllers', [])
     $scope.checkConnection = function () {
         var isConnect = $cordovaNetwork.isOnline();
         if (isConnect == true) {
-            alert('Vous avez bien une connection � internet');
+            alert('Vous avez bien une connection à internet');
         } else {
-            alert("vous n'�tes pas connect� � internet");
+            alert("vous n'êtes pas connecté à internet");
         }
         document.addEventListener("deviceready", function () {
 
@@ -32,9 +32,9 @@ angular.module('starter.controllers', [])
           .then(function (position) {
               var lat = position.coords.latitude
               var long = position.coords.longitude
-              alert("Vous �tes en :\nLatitude : " + lat + "\nLongitude : " + long);
+              alert("Vous êtes en :\nLatitude : " + lat + "\nLongitude : " + long);
           }, function (err) {
-              alert("Une erreur a �t� rencontr� lors de l'acquisition de votre position");
+              alert("Une erreur a été rencontré lors de l'acquisition de votre position");
           });
     }
     $scope.shareMyIdea = function () {
@@ -68,21 +68,43 @@ angular.module('starter.controllers', [])
     $scope.chat = Chats.get($stateParams.chatId);
 })
 
-.controller('AccountCtrl', function ($scope) {
+.controller('AccountCtrl', function ($scope, $cordovaGeolocation) {
     $scope.settings = {
         enableFriends: true
     };
     $scope.testPlace = function () {
-        initMap();
+        var latGeo;
+        var lngGeo;
+        var posOptions = { timeout: 10000, enableHighAccuracy: false };
+        document.getElementById("feedback").innerHTML = "<font color='blue'>Recherche de votre position...</font>";
+        $cordovaGeolocation
+             .getCurrentPosition(posOptions)
+             .then(function (position) {
+                 latGeo = position.coords.latitude;
+                 lngGeo = position.coords.longitude;
+                 document.getElementById("feedback").innerHTML = "<font color='green'>Position trouvée !</font>";
+                 initMap(latGeo, lngGeo);
+             }, function (err) {
+                 alert("Une erreur a été rencontré lors de l'acquisition de votre position\nVeuillez Recommencez");
+                 //console.log("Une erreur a été rencontré lors de l'acquisition de votre position");
+             });
+
     }
 });
 
-function initMap() {
-    var pyrmont = { lat: -33.867, lng: 151.195 };
+function initMap(latGeo, lngGeo) {
+
+    var pyrmont = { lat: latGeo, lng: lngGeo };
 
     map = new google.maps.Map(document.getElementById('map'), {
         center: pyrmont,
         zoom: 15
+    });
+
+    var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(latGeo, lngGeo),
+        map: map,
+        icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
     });
 
     infowindow = new google.maps.InfoWindow();
@@ -96,16 +118,27 @@ function initMap() {
 
 function callback(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
+        var string = "";
         for (var i = 0; i < results.length; i++) {
             createMarker(results[i]);
+            string += "<a class='item item-avatar' href='#'>" +
+                      "<img src=" + results[i].icon + ">" +
+                      "<h2>" + results[i].name + "</h2>" +
+                      "<p>" + results[i].vicinity + "</p>";
+            if (results[i].rating == undefined) {
+                string += "<p><i>Note non renseignée</i></p>";
+            } else {
+                string += "<p>Note : " + results[i].rating + "/5 </p>";
+            }
+            string += "</a>";
         }
+        document.getElementById("list").innerHTML = string;
     } else {
         alert("error callback");
     }
 }
 
 function createMarker(place) {
-    //alert("nom : " + place.name);
     var placeLoc = place.geometry.location;
     var marker = new google.maps.Marker({
         map: map,
