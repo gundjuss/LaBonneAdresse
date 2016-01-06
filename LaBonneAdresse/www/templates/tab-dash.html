@@ -1,20 +1,17 @@
 <ion-view name="tab-dash" view-title="La Bonne Adresse">
     <script src="dashScript.js" type="text/javascript"></script>
     <ion-content class="has-tabs-top">
-        <button ng-click="checkConnection()" class="button">
-            Acces Internet ? (valide sur téléphone uniquement)
-        </button>
-        <button ng-click="getMyPosition()" class="button">
-            Trouver ma position
-        </button>
-        <button ng-click="shareMyIdea()" class="button">
-            Test partage
-        </button>
+        <center>
+            <p id="feedback"></p>
+            <button id="btnSearch" ng-click="testPlace()" class="button">
+                Chercher...
+            </button>
+        </center>
+        </br>
+        <div id="map"></div>
+        </br>
+        <div class="list" id="list"></div>
+        <br/>
+        <br/>
     </ion-content>
-
-
-
-
-
-
 </ion-view>

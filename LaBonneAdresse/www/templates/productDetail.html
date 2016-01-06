@@ -1,10 +1,20 @@
 ﻿<ion-view view-title="Detail de l'établissement'">
     <ion-content class="padding">
-        <h2 class="title" id="nomEta"></h2>
-        <div id="pictureEtat"></div>
-        <p id="types"></p>
-        <p id="adress"></p>
+        <center>
+            <h2 class="title" id="nomEta"></h2>
+            <div id="pictureEtat"></div>
+            <p id="types"></p>
+            <p id="adress"></p>
+        </center>
         <p id="phone"></p>
-        <div id="mapDetail"></div>
+        <center>
+            <button ng-click="shareMyIdea()" class="button">
+                Partager l'établissement
+            </button>
+            <button ng-click='executeDatabase()' id="buttonDB" class='button'></button>
+        </center>
+        <div class="list list-inset" id="listDetails"></div>
+        <br/>
+        <br/>
     </ion-content>
 </ion-view>
