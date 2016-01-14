@@ -45,23 +45,24 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', ,
         views: {
             'tab-dash': {
                 templateUrl: 'templates/tab-dash.html',
-                controller: 'AccountCtrl'
+                controller: 'DashCtrl'
             }
         }
     })
 
     .state('tab.chats', {
-        url: '/chats',
+        url: '/fav',
         views: {
-            'tab-chats': {
+            'tab-favs': {
+                cache: false,
                 templateUrl: 'templates/tab-chats.html',
-                controller: 'ChatsCtrl'
+                controller: 'FavsCtrl'
             }
         }
     })
 
       .state('tab.chat-detail', {
-          url: '/chats/:chatId',
+          url: '/fav/:favId',
           views: {
               'tab-chats': {
                   templateUrl: 'templates/chat-detail.html',

@@ -26,10 +26,6 @@
     var param1 = $stateParams.placeId;
     var param2 = $stateParams.website;
 
-    
-
-    
-
     var posOptions = { timeout: 10000, enableHighAccuracy: false };
     $cordovaGeolocation
          .getCurrentPosition(posOptions)
@@ -82,20 +78,63 @@
                         var query = "DELETE FROM Etablissement WHERE reference like '" + place.place_id + "' ";
                         $cordovaSQLite.execute(db, query).then(function (res) {
                             document.getElementById("buttonDB").innerHTML = "Enregistrer l'établissement";
+                            var query = "SELECT name,reference,phoneNumber,reference,address FROM Etablissement";
+                            $cordovaSQLite.execute(db, query).then(function (res) {
+                                var string = "";
+                                if (res.rows.length > 0) {
+                                    for (var i = 0; i < res.rows.length; i++) {
+                                        var string2 = res.rows.item(i).name + "\n" + res.rows.item(i).address;
+                                        string += "<a class='item' href='#/tab/fav/" + res.rows.item(i).reference + "/" + string2 + "'>" +
+                                              "<h2>" + res.rows.item(i).name + "</h2>" +
+                                              "<p>" + res.rows.item(i).address + "</p>";
+                                        if (res.rows.item(i).rating == undefined) {
+                                            string += "<p><i>Note non renseignée</i></p>";
+                                        } else {
+                                            string += "<p>Note : " + res.rows.item(i).rating + "/5 </p>";
+                                        }
+                                        string += "</a>";
+                                    }
+                                    console.log("test : " + string);
+                                    document.getElementById("listFav").innerHTML = string;
+                                } else {
+                                    document.getElementById("feedback2").innerHTML = "vous n'avez pas de favoris";
+                                    document.getElementById("listFav").innerHTML = " ";
+                                }
+                            }, function (err) {
+                                console.error(err);
+                            });
                         }, function (err) {
                             alert("l'établissement a pas pu être supprimer");
                         });
                     } else {
-                        var query = "CREATE TABLE IF NOT EXISTS Etablissement(id integer primary key, reference text unique, name text, phoneNumber text,rating text, address text)";
-                        $cordovaSQLite.execute(db, query).then(function (res) {
-                            //console.log("table Etablissement crée");
-                        }, function (err) {
-                            console.error("erreur : " + err);
-                        });
-
                         var query = "INSERT OR IGNORE INTO Etablissement (reference,name,phoneNumber,rating,address) VALUES (?,?,?,?,?)";
                         $cordovaSQLite.execute(db, query, [place.place_id, place.name, place.international_phone_number, place.rating, place.vicinity]).then(function (res) {
                             document.getElementById("buttonDB").innerHTML = "Supprimer l'établissement";
+                            var query = "SELECT name,reference,phoneNumber,reference,address FROM Etablissement";
+                            $cordovaSQLite.execute(db, query).then(function (res) {
+                                var string = "";
+                                if (res.rows.length > 0) {
+                                    for (var i = 0; i < res.rows.length; i++) {
+                                        var string2 = res.rows.item(i).name + "\n" + res.rows.item(i).address;
+                                        string += "<a class='item' href='#/tab/fav/" + res.rows.item(i).reference + "/" + string2 + "'>" +
+                                              "<h2>" + res.rows.item(i).name + "</h2>" +
+                                              "<p>" + res.rows.item(i).address + "</p>";
+                                        if (res.rows.item(i).rating == undefined) {
+                                            string += "<p><i>Note non renseignée</i></p>";
+                                        } else {
+                                            string += "<p>Note : " + res.rows.item(i).rating + "/5 </p>";
+                                        }
+                                        string += "</a>";
+                                    }
+                                    console.log("test : " + string);
+                                    document.getElementById("listFav").innerHTML = string;
+                                } else {
+                                    document.getElementById("feedback2").innerHTML = "vous n'avez pas de favoris";
+                                    document.getElementById("listFav").innerHTML = " ";
+                                }
+                            }, function (err) {
+                                console.error(err);
+                            });
                         }, function (err) {
                             alert("l'établissement a pas pu être ajouté");
                         });
@@ -106,18 +145,7 @@
 
                 
 
-                var query = "SELECT name,phoneNumber,reference FROM Etablissement";
-                $cordovaSQLite.execute(db, query).then(function (res) {
-                    if (res.rows.length > 0) {
-                        for (var i = 0; i < res.rows.length; i++) {
-                            console.log("SELECTED -> " + res.rows.item(i).name + " " + res.rows.item(i).phoneNumber);
-                        }
-                    } else {
-                        console.log("No results found");
-                    }
-                }, function (err) {
-                    console.error(err);
-                });
+                
             }
         } else {
             alert("Une Erreur est survenus");

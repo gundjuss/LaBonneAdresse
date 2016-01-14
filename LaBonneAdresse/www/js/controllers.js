@@ -1,6 +1,14 @@
 angular.module('starter.controllers', [])
 
-.controller('DashCtrl', function ($scope, $cordovaNetwork, $cordovaGeolocation, $cordovaDevice, $cordovaSocialSharing) {
+.controller('DashCtrl', function ($scope, $cordovaNetwork, $cordovaGeolocation, $cordovaSQLite) {
+    var db = $cordovaSQLite.openDB({ name: "laBonneAdresse.db" });
+    var query = "CREATE TABLE IF NOT EXISTS Etablissement(id integer primary key, reference text unique, name text, phoneNumber text,rating text, address text)";
+    $cordovaSQLite.execute(db, query).then(function (res) {
+        //console.log("table Etablissement crée");
+    }, function (err) {
+        console.error("erreur : " + err);
+    });
+
     $scope.checkConnection = function () {
         var isConnect = $cordovaNetwork.isOnline();
         if (isConnect == true) {
@@ -8,60 +16,58 @@ angular.module('starter.controllers', [])
         } else {
             alert("vous n'êtes pas connecté à internet");
         }
-        document.addEventListener("deviceready", function () {
-
-            var device = $cordovaDevice.getDevice();
-            alert("device : " + device);
-
-            var cordova = $cordovaDevice.getCordova();
-
-            var model = $cordovaDevice.getModel();
-
-            var platform = $cordovaDevice.getPlatform();
-
-            var uuid = $cordovaDevice.getUUID();
-
-            var version = $cordovaDevice.getVersion();
-
-        }, false);
     }
-    $scope.getMyPosition = function () {
+
+    $scope.testPlace = function () {
+        listPlace = "";
         var posOptions = { timeout: 10000, enableHighAccuracy: false };
+        document.getElementById("feedback").innerHTML = "<font color='blue'>Recherche de votre position...</font>";
         $cordovaGeolocation
-          .getCurrentPosition(posOptions)
-          .then(function (position) {
-              var lat = position.coords.latitude
-              var long = position.coords.longitude
-              alert("Vous êtes en :\nLatitude : " + lat + "\nLongitude : " + long);
-          }, function (err) {
-              alert("Une erreur a été rencontré lors de l'acquisition de votre position");
-          });
-    }
-    $scope.shareMyIdea = function () {
-        $cordovaSocialSharing
-        .share('Ceci est un text', 'heureux', null, 'http://www.google.com') // Share via native share sheet
-        .then(function (result) {
-            console.log("Okay : " + result);
-        }, function (err) {
-            console.log("Erreur : " + err);
-        });
+             .getCurrentPosition(posOptions)
+             .then(function (position) {
+                 latGeo = position.coords.latitude;
+                 lngGeo = position.coords.longitude;
+                 document.getElementById("feedback").innerHTML = "<font color='green'>Position trouvée !</font>";
+                 initMap(latGeo, lngGeo);
+             }, function (err) {
+                 alert("Une erreur a été rencontré lors de l'acquisition de votre position\nVeuillez Recommencez");
+             });
     }
 })
 
-.controller('ChatsCtrl', function ($scope, Chats) {
-    // With the new view caching in Ionic, Controllers are only called
-    // when they are recreated or on app start, instead of every page change.
-    // To listen for when this page is active (for example, to refresh data),
-    // listen for the $ionicView.enter event:
-    //
-    //$scope.$on('$ionicView.enter', function(e) {
-    //});
+.controller('FavsCtrl', function ($scope, $cordovaSQLite, $http) {
+    var db = $cordovaSQLite.openDB({ name: "laBonneAdresse.db" });
+    var query = "SELECT name,reference,phoneNumber,reference,address FROM Etablissement";
+    $cordovaSQLite.execute(db, query).then(function (res) {
+        var string = "";
+        if (res.rows.length > 0) {
+            for (var i = 0; i < res.rows.length; i++) {
+                var string2 = res.rows.item(i).name + "\n" + res.rows.item(i).address;
+                string += "<a class='item' href='#/tab/fav/" + res.rows.item(i).reference + "/" + string2 + "'>" +
+                      "<h2>" + res.rows.item(i).name + "</h2>" +
+                      "<p>" + res.rows.item(i).address + "</p>";
+                if (res.rows.item(i).rating == undefined) {
+                    string += "<p><i>Note non renseignée</i></p>";
+                } else {
+                    string += "<p>Note : " + res.rows.item(i).rating + "/5 </p>";
+                }
+                string += "</a>";
+            }
+            document.getElementById("listFav").innerHTML = string;
+        } else {
+            document.getElementById("feedback2").innerHTML = "vous n'avez pas de favoris";
+            document.getElementById("listFav").innerHTML = " ";
+        }
+    }, function (err) {
+        console.error(err);
+    });
 
-    $scope.chats = Chats.all();
-    $scope.remove = function (chat) {
-        Chats.remove(chat);
-        navigator.vibration(3000);
-    };
+    document.addEventListener('CordovaBrowser_LoadCompleted', function () {
+        console.log("//**********device ready");
+    }
+    , false);
+
+
 })
 
 .controller('ChatDetailCtrl', function ($scope, $stateParams, Chats) {
