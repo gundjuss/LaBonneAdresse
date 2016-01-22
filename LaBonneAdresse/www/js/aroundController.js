@@ -59,14 +59,19 @@
                 console.error(err);
             });
             
-            $scope.shareMyIdea = function () {
-                $cordovaSocialSharing
-                .share('Cet établissement devrais vous interesser :' + param2 + ". Tel :" + place.international_phone_number, 'Partage via La Bonne Adresse', null, place.url) // Share via native share sheet
-                .then(function (result) {
-                    console.log("Okay : " + result);
-                }, function (err) {
-                    console.log("Erreur : " + err);
-                });
+            var isConnect = $cordovaNetwork.isOnline();
+            if (isConnect == true) {
+                $scope.shareMyIdea = function () {
+                    $cordovaSocialSharing
+                    .share('Cet établissement devrais vous interesser :' + param2 + ". Tel :" + place.international_phone_number, 'Partage via La Bonne Adresse', null, place.url) // Share via native share sheet
+                    .then(function (result) {
+                        console.log("Okay : " + result);
+                    }, function (err) {
+                        console.log("Erreur : " + err);
+                    });
+                }
+            } else {
+                alert("vous n'êtes pas connecté à internet");
             }
 
             $scope.executeDatabase = function () {
@@ -107,8 +112,16 @@
                             alert("l'établissement a pas pu être supprimer");
                         });
                     } else {
-                        var query = "INSERT OR IGNORE INTO Etablissement (reference,name,phoneNumber,rating,address) VALUES (?,?,?,?,?)";
-                        $cordovaSQLite.execute(db, query, [place.place_id, place.name, place.international_phone_number, place.rating, place.vicinity]).then(function (res) {
+                        var stringComment = "";
+                        for (var i = 0; i < place.reviews.length; i++) {
+                            stringComment += "<div  class='item item-text-wrap'>" +
+                                      "<p>" + place.reviews[i].author_name + "</p>" +
+                                      "<p>" + place.reviews[i].rating + " / 5 </p>" +
+                                      "<p>" + place.reviews[i].text + "</p>";
+                            stringComment += "</div>";
+                        }
+                        var query = "INSERT OR IGNORE INTO Etablissement (reference,name,phoneNumber,rating,address,comments) VALUES (?,?,?,?,?,?)";
+                        $cordovaSQLite.execute(db, query, [place.place_id, place.name, place.international_phone_number, place.rating, place.vicinity,stringComment]).then(function (res) {
                             document.getElementById("buttonDB").innerHTML = "Supprimer l'établissement";
                             var query = "SELECT name,reference,phoneNumber,reference,address FROM Etablissement";
                             $cordovaSQLite.execute(db, query).then(function (res) {
@@ -116,7 +129,7 @@
                                 if (res.rows.length > 0) {
                                     for (var i = 0; i < res.rows.length; i++) {
                                         var string2 = res.rows.item(i).name + "\n" + res.rows.item(i).address;
-                                        string += "<a class='item' href='#/tab/fav/" + res.rows.item(i).reference + "/" + string2 + "'>" +
+                                        string += "<a class='item' href='#/tab/fav/" + res.rows.item(i).reference+"'>" +
                                               "<h2>" + res.rows.item(i).name + "</h2>" +
                                               "<p>" + res.rows.item(i).address + "</p>";
                                         if (res.rows.item(i).rating == undefined) {

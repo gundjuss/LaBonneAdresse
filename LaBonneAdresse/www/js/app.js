@@ -50,7 +50,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', ,
         }
     })
 
-    .state('tab.chats', {
+    .state('tab.fav', {
         url: '/fav',
         views: {
             'tab-favs': {
@@ -61,10 +61,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', ,
         }
     })
 
-      .state('tab.chat-detail', {
+      .state('tab.fav-detail', {
           url: '/fav/:favId',
           views: {
-              'tab-chats': {
+              'tab-favs': {
                   templateUrl: 'templates/chat-detail.html',
                   controller: 'ChatDetailCtrl'
               }
