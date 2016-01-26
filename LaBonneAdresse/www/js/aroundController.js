@@ -25,22 +25,6 @@
     var test = "";
     var param1 = $stateParams.placeId;
     var param2 = $stateParams.website;
-
-    var posOptions = { timeout: 10000, enableHighAccuracy: false };
-    $cordovaGeolocation
-         .getCurrentPosition(posOptions)
-         .then(function (position) {
-             latGeo = position.coords.latitude;
-             lngGeo = position.coords.longitude;
-             var pyrmont = { lat: latGeo, lng: lngGeo };
-             map2 = new google.maps.Map(document.getElementById('mapDetail'), {
-                 center: pyrmont,
-                 zoom: 15
-             });
-         }, function (err) {
-             alert("Une erreur a été rencontré lors de l'acquisition de votre position\nVeuillez Recommencez");
-         });
-
     var service = new google.maps.places.PlacesService(map);
     service.getDetails({
         placeId: param1
@@ -59,19 +43,14 @@
                 console.error(err);
             });
             
-            var isConnect = $cordovaNetwork.isOnline();
-            if (isConnect == true) {
-                $scope.shareMyIdea = function () {
-                    $cordovaSocialSharing
-                    .share('Cet établissement devrais vous interesser :' + param2 + ". Tel :" + place.international_phone_number, 'Partage via La Bonne Adresse', null, place.url) // Share via native share sheet
-                    .then(function (result) {
-                        console.log("Okay : " + result);
-                    }, function (err) {
-                        console.log("Erreur : " + err);
-                    });
-                }
-            } else {
-                alert("vous n'êtes pas connecté à internet");
+            $scope.shareMyIdea = function () {
+                $cordovaSocialSharing
+                .share('Cet établissement devrais vous interesser :' + param2 + ". Tel :" + place.international_phone_number, 'Partage via La Bonne Adresse', null, place.url) // Share via native share sheet
+                .then(function (result) {
+                    console.log("Okay : " + result);
+                }, function (err) {
+                    console.log("Erreur : " + err);
+                });
             }
 
             $scope.executeDatabase = function () {
@@ -89,7 +68,7 @@
                                 if (res.rows.length > 0) {
                                     for (var i = 0; i < res.rows.length; i++) {
                                         var string2 = res.rows.item(i).name + "\n" + res.rows.item(i).address;
-                                        string += "<a class='item' href='#/tab/fav/" + res.rows.item(i).reference + "/" + string2 + "'>" +
+                                        string += "<a class='item' href='#/tab/fav/" + res.rows.item(i).reference + "'>" +
                                               "<h2>" + res.rows.item(i).name + "</h2>" +
                                               "<p>" + res.rows.item(i).address + "</p>";
                                         if (res.rows.item(i).rating == undefined) {
@@ -120,10 +99,10 @@
                                       "<p>" + place.reviews[i].text + "</p>";
                             stringComment += "</div>";
                         }
-                        var query = "INSERT OR IGNORE INTO Etablissement (reference,name,phoneNumber,rating,address,comments) VALUES (?,?,?,?,?,?)";
-                        $cordovaSQLite.execute(db, query, [place.place_id, place.name, place.international_phone_number, place.rating, place.vicinity,stringComment]).then(function (res) {
+                        var query = "INSERT OR IGNORE INTO Etablissement (reference,name,phoneNumber,rating,address,comments,website,url) VALUES (?,?,?,?,?,?,?,?)";
+                        $cordovaSQLite.execute(db, query, [place.place_id, place.name, place.international_phone_number, place.rating, place.vicinity, stringComment, param2, place.url]).then(function (res) {
                             document.getElementById("buttonDB").innerHTML = "Supprimer l'établissement";
-                            var query = "SELECT name,reference,phoneNumber,reference,address FROM Etablissement";
+                            var query = "SELECT name,reference,phoneNumber,reference,address,website,url FROM Etablissement";
                             $cordovaSQLite.execute(db, query).then(function (res) {
                                 var string = "";
                                 if (res.rows.length > 0) {
@@ -139,7 +118,7 @@
                                         }
                                         string += "</a>";
                                     }
-                                    console.log("test : " + string);
+                                    
                                     document.getElementById("listFav").innerHTML = string;
                                 } else {
                                     document.getElementById("feedback2").innerHTML = "vous n'avez pas de favoris";
@@ -154,12 +133,9 @@
                     }
                 }, function (err) {
                     console.error(err);
-                });
-
-                
-
-                
+                }); 
             }
+
         } else {
             alert("Une Erreur est survenus");
         }
@@ -171,6 +147,8 @@
 
 function initMap(latGeo, lngGeo) {
     var pyrmont = { lat: latGeo, lng: lngGeo };
+    console.log("pyrmont : " + pyrmont);
+    console.log("test map : " + document.getElementById('map'));
     map = new google.maps.Map(document.getElementById('map'), {
         center: pyrmont,
         zoom: 15
